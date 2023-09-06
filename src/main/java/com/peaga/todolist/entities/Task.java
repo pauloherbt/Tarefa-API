@@ -14,17 +14,15 @@ public class Task implements Serializable {
     private Long id;
     private String title;
     private String description;
-    private LocalDate date;
     private Status status;
 
     public Task() {
     }
 
-    public Task(Long id, String title, String description, LocalDate date, Status status) {
+    public Task(Long id, String title, String description,Status status) {
         this.id = id;
         this.title = title;
         this.description = description;
-        this.date = date;
         this.status = status;
     }
 
@@ -50,14 +48,6 @@ public class Task implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
     }
 
     public int getStatus() {
