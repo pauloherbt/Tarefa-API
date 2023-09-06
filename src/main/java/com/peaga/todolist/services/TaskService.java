@@ -17,8 +17,8 @@ public class TaskService {
     public Task findById(long id){
         return taskRepository.findById(id).orElseThrow();
     }
-    public void insert(Task task){
-        taskRepository.save(task);
+    public Task insert(Task task){
+        return taskRepository.save(task);
     }
 
 

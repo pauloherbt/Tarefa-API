@@ -60,8 +60,8 @@ public class Task implements Serializable {
         this.date = date;
     }
 
-    public Status getStatus() {
-        return status;
+    public int getStatus() {
+        return status.getId();
     }
 
     public void setStatus(int num) {
