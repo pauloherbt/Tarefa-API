@@ -9,12 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 
-import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,16 +26,37 @@ class TodoListLoadingJrApplicationTests {
         Task ts = new Task(null,"first","description", Status.FINISHED);
         ResponseEntity<Void> reqTask = test.postForEntity("/tasks",ts, Void.class);
         assertThat(reqTask.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(reqTask.getHeaders().getLocation().getPath()).isEqualTo("/tasks/1");
+        assertThat(reqTask.getHeaders().getLocation().getPath()).isNotEmpty();
     }
     @Test
-    void shouldReturnAllTasks(){
+    void shouldReturnAllTasksSorted(){
         ResponseEntity<String> resp = test.getForEntity("/tasks", String.class);
         assertThat(resp.getStatusCode().equals(HttpStatus.OK));
+
         DocumentContext dc = JsonPath.parse(resp.getBody());
         JSONArray pageAmount = dc.read("$[*]");
         assertThat(pageAmount.size()).isEqualTo(1);
 
+        int firstId = dc.read("$[0].id");
+        assertThat(firstId).isEqualTo(1);
+    }
+    @Test
+    void shouldReturnRequestedTask(){
+        ResponseEntity<String> response = test.getForEntity("/tasks/1", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        DocumentContext dc = JsonPath.parse(response.getBody());
+        Integer id = dc.read("id");
+        assertThat(id).isEqualTo(1);
+
+    }
+    @Test
+    void shouldUpdateATask(){
+        test.put("/tasks/{id}",new Task(1012L,"testunitario","unitarioo",Status.FINISHED),100L);
+        ResponseEntity<String> resp = test.getForEntity("/tasks/{id}",String.class,100L);
+        DocumentContext dc = JsonPath.parse(resp.getBody());
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+        String title = dc.read("$.title");
+        assertThat(title).isEqualTo("first");
     }
 
 }

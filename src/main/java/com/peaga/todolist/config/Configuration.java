@@ -17,7 +17,7 @@ public class Configuration implements CommandLineRunner {
     private TaskRepository taskRepository;
     @Override
     public void run(String... args) throws Exception {
-        //Task tsk1 = new Task(null,"titulo","description", Status.FINISHED);
-        //taskRepository.save(tsk1);
+        Task tsk1 = new Task(null,"titulo","description", Status.FINISHED);
+        taskRepository.save(tsk1);
     }
 }

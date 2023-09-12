@@ -14,7 +14,7 @@ public class Task implements Serializable {
     private Long id;
     private String title;
     private String description;
-    private Status status;
+    private Integer status;
 
     public Task() {
     }
@@ -23,7 +23,7 @@ public class Task implements Serializable {
         this.id = id;
         this.title = title;
         this.description = description;
-        this.status = status;
+        setStatus(status);
     }
 
     public Long getId() {
@@ -50,12 +50,12 @@ public class Task implements Serializable {
         this.description = description;
     }
 
-    public int getStatus() {
-        return status.getId();
+    public Status getStatus() {
+        return Status.valueOf(status);
     }
 
-    public void setStatus(int num) {
-        this.status =Status.valueOf(num);
+    public void setStatus(Status status) {
+        this.status =status.getId();
     }
 
     @Override

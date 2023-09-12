@@ -25,20 +25,23 @@ public class TaskResource {
     }
     @GetMapping
     public ResponseEntity<List<Task>> findAll(){
-        Pageable pg = PageRequest.of(0,5,Sort.by("id").ascending());
-        Page page = taskService.findAll(pg);
-        return ResponseEntity.ok().body(page.getContent());
+        return ResponseEntity.ok().body(taskService.findAll());
     }
     @GetMapping(value="/{id}")
-    public ResponseEntity<Task> findById(@PathVariable Long Id){
-        return ResponseEntity.ok().body(taskService.findById(Id));
+    public ResponseEntity<Task> findById(@PathVariable Long id){
+        return ResponseEntity.ok().body(taskService.findById(id));
     }
     @PostMapping
     public ResponseEntity<Void> create(@RequestBody Task task,UriComponentsBuilder ucb){
-        Task taskToSave = new Task(null,task.getTitle(),task.getDescription(), Status.valueOf(task.getStatus()));
+        Task taskToSave = new Task(null,task.getTitle(),task.getDescription(),Status.FINISHED);
         taskToSave = taskService.insert(taskToSave);
         URI uri = ucb.path("/tasks/{id}").buildAndExpand(taskToSave.getId()).toUri();
         return ResponseEntity.created(uri).build();
+    }
+    @RequestMapping(value = "/{id}",method = RequestMethod.PUT)
+    public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody Task task){
+        taskService.update(id,task);
+        return ResponseEntity.ok().build();
     }
 
 }
