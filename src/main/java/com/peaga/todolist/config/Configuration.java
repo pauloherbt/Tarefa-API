@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 @org.springframework.context.annotation.Configuration
@@ -17,7 +18,7 @@ public class Configuration implements CommandLineRunner {
     private TaskRepository taskRepository;
     @Override
     public void run(String... args) throws Exception {
-        Task tsk1 = new Task(null,"titulo","description", Status.FINISHED);
+        Task tsk1 = new Task(null,"titulo","description", Status.FINISHED, Instant.now());
         taskRepository.save(tsk1);
     }
 }

@@ -1,9 +1,12 @@
 package com.peaga.todolist.entities;
 
 import com.peaga.todolist.enums.Status;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Objects;
 @Entity
@@ -12,18 +15,23 @@ public class Task implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false)
     private String title;
+    @Column(nullable = false)
     private String description;
+    @Column(nullable = false)
     private Integer status;
+    private Instant date; //MMM d yyyy hh:mm a z
 
     public Task() {
     }
 
-    public Task(Long id, String title, String description,Status status) {
+    public Task(Long id, String title, String description,Status status,Instant date) {
         this.id = id;
         this.title = title;
         this.description = description;
         setStatus(status);
+        this.date=date;
     }
 
     public Long getId() {
@@ -56,6 +64,14 @@ public class Task implements Serializable {
 
     public void setStatus(Status status) {
         this.status =status.getId();
+    }
+
+    public Instant getDate() {
+        return date;
+    }
+
+    public void setDate(Instant date) {
+        this.date = date;
     }
 
     @Override

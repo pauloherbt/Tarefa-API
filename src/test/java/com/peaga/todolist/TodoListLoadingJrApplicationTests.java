@@ -9,10 +9,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.DirtiesContext;
 
 
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -23,22 +27,10 @@ class TodoListLoadingJrApplicationTests {
 
     @Test
     void shouldCreateATask(){
-        Task ts = new Task(null,"first","description", Status.FINISHED);
+        Task ts = new Task(null,"first","description", Status.FINISHED, Instant.now());
         ResponseEntity<Void> reqTask = test.postForEntity("/tasks",ts, Void.class);
         assertThat(reqTask.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(reqTask.getHeaders().getLocation().getPath()).isNotEmpty();
-    }
-    @Test
-    void shouldReturnAllTasksSorted(){
-        ResponseEntity<String> resp = test.getForEntity("/tasks", String.class);
-        assertThat(resp.getStatusCode().equals(HttpStatus.OK));
-
-        DocumentContext dc = JsonPath.parse(resp.getBody());
-        JSONArray pageAmount = dc.read("$[*]");
-        assertThat(pageAmount.size()).isEqualTo(1);
-
-        int firstId = dc.read("$[0].id");
-        assertThat(firstId).isEqualTo(1);
     }
     @Test
     void shouldReturnRequestedTask(){
@@ -50,13 +42,49 @@ class TodoListLoadingJrApplicationTests {
 
     }
     @Test
+    void shouldReturnAllTasksSorted(){
+        ResponseEntity<String> resp = test.getForEntity("/tasks", String.class);
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        DocumentContext dc = JsonPath.parse(resp.getBody());
+        JSONArray pageAmount = dc.read("$[*]");
+        assertThat(pageAmount.size()).isEqualTo(2);
+
+        int firstId = dc.read("$[0].id");
+        assertThat(firstId).isEqualTo(1);
+    }
+    @Test
     void shouldUpdateATask(){
-        test.put("/tasks/{id}",new Task(1012L,"testunitario","unitarioo",Status.FINISHED),100L);
+        test.put("/tasks/{id}",new Task(1012L,"testunitario","unitarioo",Status.FINISHED,Instant.now()),100L);
         ResponseEntity<String> resp = test.getForEntity("/tasks/{id}",String.class,100L);
         DocumentContext dc = JsonPath.parse(resp.getBody());
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
-        String title = dc.read("$.title");
-        assertThat(title).isEqualTo("first");
+        String title = dc.read("title");
+        assertThat(title).isEqualTo("testunitario");
+    }
+    @Test
+    void shouldDeleteATask(){
+        ResponseEntity<String> respDel=test.exchange("/tasks/100", HttpMethod.DELETE,null,String.class);
+        assertThat(respDel.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+    @Test
+    void shouldNotDeleteATask(){
+        ResponseEntity<String> respDel=test.exchange("/tasks/20", HttpMethod.DELETE,null,String.class);
+        assertThat(respDel.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
+    @Test
+    @DirtiesContext
+    void shouldNotUpdateATask(){
+        HttpEntity<Task> taskReq = new HttpEntity<>(new Task(1012L,"teste","unitarioo",Status.FINISHED,Instant.now()));
+        ResponseEntity<String> resp= test.exchange("/tasks/2",HttpMethod.PUT,taskReq,String.class); //id 2 dont exists
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        DocumentContext dc = JsonPath.parse(resp.getBody());
+        String title= dc.read("title");
+        assertThat(title).isNotEqualTo("teste");
+    }
+    @Test
+    void shouldNotUpdateTaskByInvalidInput(){
+
+    }
 }
