@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.Objects;
 @Entity
 @Table(name = "task")
@@ -59,11 +58,15 @@ public class Task implements Serializable {
     }
 
     public Status getStatus() {
-        return Status.valueOf(status);
+        if(status!=null){
+            return Status.valueOf(status);
+        }
+        return null;
     }
 
     public void setStatus(Status status) {
-        this.status =status.getId();
+        if(status!=null)
+            this.status =status.getId();
     }
 
     public Instant getDate() {

@@ -19,7 +19,7 @@ public class TaskService {
     @Autowired
     private TaskRepository taskRepository;
     public List<Task> findAll(int pageNumber){
-        int pageSize=1;
+        int pageSize=10;
         Pageable page= PageRequest.of(pageNumber,pageSize, Sort.by("id").ascending());
         return taskRepository.findAll(page).getContent();
     }
